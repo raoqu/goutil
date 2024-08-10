@@ -1,4 +1,4 @@
-gomodule is a common tool module for Golang development. It is designed to not rely on other third-party modules to avoid nested dependencies of modules, thereby reducing the size of the compiled target application.
+goutil is a common tool module for Golang development. It is designed to not rely on other third-party modules to avoid nested dependencies of modules, thereby reducing the size of the compiled target application.
 
 1. The first step to using this module is to import it:
 
