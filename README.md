@@ -14,7 +14,7 @@ package main
 import "github.com/raoqu/goutil/shell"
 
 func main() {
-	run("ping baidu.com -t 1")
+	run("ping google.com -t 1")
 	ps()
 }
 
