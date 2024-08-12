@@ -12,6 +12,7 @@ type CommandStatus int
 
 const (
 	INIT CommandStatus = iota
+	START
 	FAIL
 	COMPLETE
 )

@@ -11,7 +11,14 @@ func main() {
 	println("Listening on", server.Address())
 
 	server.API("stat", web.NewAPI(api.APIStat))
-	server.API("config", web.NewAPI(api.APIConfig))
+
+	server.API("commands", web.NewAPI(api.APICommands))
+	server.API("command_add", web.NewAPI(api.APICOmmandAdd))
+	server.API("command_remove", web.NewAPI(api.APICommandRemove))
+
+	server.API("configs", web.NewAPI(api.APIConfig))
+	server.API("config_update", web.NewAPI(api.APIConfigUpdate))
+
 	server.Start()
 
 	select {}
