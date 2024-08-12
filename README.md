@@ -3,7 +3,7 @@ goutil is a common tool module for Golang development. It is designed to not rel
 1. The first step to using this module is to import it:
 
 ```shell
-go mod get github.com/raoqu/goutil
+go get github.com/raoqu/goutil@latest
 ```
 
 2. Then use the various tools provided by the module in your code.
