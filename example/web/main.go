@@ -15,6 +15,8 @@ func main() {
 	server.API("commands", web.NewAPI(api.APICommands))
 	server.API("command_add", web.NewAPI(api.APICOmmandAdd))
 	server.API("command_remove", web.NewAPI(api.APICommandRemove))
+	server.API("command_start", web.NewAPI(api.APICommandStart))
+	server.API("command_stop", web.NewAPI(api.APICommandStop))
 
 	server.API("configs", web.NewAPI(api.APIConfig))
 	server.API("config_update", web.NewAPI(api.APIConfigUpdate))

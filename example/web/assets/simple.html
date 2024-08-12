@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>web DEMO</title>
+        <link rel="stylesheet" href="css/styles.css"/>
+    </head>
+    <body>
+        <h1>FORM</h1>
+        <form id="myForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name"/><br/><br/>
+
+            <label for="check">Select:</label>
+            <input type="checkbox" id="check" name="check"/><br/><br/>
+
+            <button type="submit">Echo</button> <button type="button" id="apiCommands">Commands</button> <button type="button" id="apiConfigs">Configs</button> 
+        </form>
+        <h2>Response</h2>
+        <textarea id="response" cols="50" rows="20" readonly></textarea>
+
+        <script src="js/form.js"></script>
+    </body>
+</html>

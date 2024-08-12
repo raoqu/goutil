@@ -46,6 +46,20 @@ func (m *Manager) RemoveCommand(uuid string) bool {
 	return true
 }
 
+func (m *Manager) StartCommand(uuid string) bool {
+	config, exists := m.Configs[uuid]
+	if exists {
+		command := shell.NewCommandWithWorkDir(config.Command, true, config.Dir)
+		m.ShellManager.Start(command)
+		return true
+	}
+	return false
+}
+
+func (m *Manager) StopCommand(uuid string) {
+	// m.ShellManager
+}
+
 func (m *Manager) GetConfig(uuid string) Config {
 	config, exists := m.Configs[uuid]
 	if exists {
