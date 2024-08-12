@@ -14,14 +14,14 @@ type Server struct {
 	Endpoint map[string]StdAPI
 }
 
-func NewServer(port int, local bool, dir string) Server {
+func NewServer(port int, local bool, dir string) *Server {
 	server := Server{
 		Local:    local,
 		Port:     port,
 		Dir:      dir,
 		Endpoint: make(map[string]StdAPI),
 	}
-	return server
+	return &server
 }
 
 func (s *Server) API(endpoint string, api StdAPI) {

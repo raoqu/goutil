@@ -1,6 +1,8 @@
 package web
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type WebAPI[T any, R any] func(T) (R, error)
 type StdAPI func(string) (string, error)
@@ -45,4 +47,9 @@ func NewAPI[T any, R any](callback WebAPI[T, R]) func(string) (string, error) {
 
 		return string(resultJSON), nil
 	}
+}
+
+func RegisterAPI[T any, R any](s *Server, endpoint string, callback WebAPI[T, R]) {
+	api := NewAPI(callback)
+	s.API(endpoint, api)
 }

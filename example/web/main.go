@@ -10,16 +10,16 @@ func main() {
 
 	println("Listening on", server.Address())
 
-	server.API("stat", web.NewAPI(api.APIStat))
+	web.RegisterAPI(server, "stat", api.APIStat)
 
-	server.API("commands", web.NewAPI(api.APICommands))
-	server.API("command_add", web.NewAPI(api.APICOmmandAdd))
-	server.API("command_remove", web.NewAPI(api.APICommandRemove))
-	server.API("command_start", web.NewAPI(api.APICommandStart))
-	server.API("command_stop", web.NewAPI(api.APICommandStop))
+	web.RegisterAPI(server, "commands", api.APICommands)
+	web.RegisterAPI(server, "command_add", api.APICOmmandAdd)
+	web.RegisterAPI(server, "command_remove", api.APICommandRemove)
+	web.RegisterAPI(server, "command_start", api.APICommandStart)
+	web.RegisterAPI(server, "command_stop", api.APICommandStop)
 
-	server.API("configs", web.NewAPI(api.APIConfig))
-	server.API("config_update", web.NewAPI(api.APIConfigUpdate))
+	web.RegisterAPI(server, "configs", api.APIConfig)
+	web.RegisterAPI(server, "config_update", api.APIConfigUpdate)
 
 	server.Start()
 
