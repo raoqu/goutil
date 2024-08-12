@@ -66,6 +66,10 @@ func (c *Command) initExec() {
 	flag := OSFeature("/C", "-c")
 	cmd := exec.Command(shell, flag, c.Command)
 	cmd.Dir = c.Dir
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	// 	Setpgid: true,
+	// }
+
 	c.Exec = cmd
 
 	if c.OnOutput != nil {

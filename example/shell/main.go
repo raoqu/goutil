@@ -3,7 +3,7 @@ package main
 import "github.com/raoqu/goutil/shell"
 
 func main() {
-	run("ping baidu.com -t 100")
+	run("ping aliyun.com")
 	ps()
 }
 
