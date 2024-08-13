@@ -15,27 +15,32 @@ const (
 	START
 	FAIL
 	COMPLETE
+	UNKNOWN
 )
 
 const DEFAULT_BUFFER_LINES = 50
 
 type Command struct {
-	UniqueId string
+	Uuid string
 	// basic params
-	Command string
-	Dir     string
-	Async   bool
+	Command  string
+	Dir      string
+	Async    bool
+	Attached bool
 	// callbacks
 	OnOutput    func(string)
 	OnClose     func()
 	BufferLines int
 	Status      CommandStatus
+	// alive check
+	AliveConfig AliveCheckConfig
 
 	Manager *ShellManager
 	Exec    *exec.Cmd
 	Err     error
 
 	outputWriter *LineBufferWriter
+	extBuffer    []string
 }
 
 func NewCommand(command string, async bool) Command {
@@ -43,16 +48,18 @@ func NewCommand(command string, async bool) Command {
 }
 
 func NewCommandWithWorkDir(command string, async bool, dir string) Command {
-	uniqueId := util.UUID()
+	uuid := util.UUID()
 
 	return Command{
-		UniqueId: uniqueId,
-		Command:  command,
-		Dir:      dir,
-		Async:    async,
+		Uuid:    uuid,
+		Command: command,
+		Dir:     dir,
+		Async:   async,
 
 		BufferLines: DEFAULT_BUFFER_LINES,
 		Status:      INIT,
+
+		extBuffer: make([]string, 0),
 	}
 }
 

@@ -4,7 +4,7 @@ document.getElementById("myForm").addEventListener('submit', function(event){
     const name = document.getElementById('name').value;
     const check = document.getElementById('check').checked;
     const data =  {name:name, check:check}
-    post('/api/stat',data)
+    post('/api/echo',data)
 });
 
 document.getElementById('apiCommands').addEventListener('click', function(event){

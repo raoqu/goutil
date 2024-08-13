@@ -2,9 +2,11 @@ package process
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/raoqu/goutil/shell"
 )
@@ -18,10 +20,23 @@ var MANAGER = LoadFromFile()
 func (m *Manager) GetCommands() []Command {
 	commands := make([]Command, 0)
 	for _, item := range m.Instances {
-		cmd, _ := m.Commands[item]
+		cmd := m.Commands[item]
+		// update status
+		stat := m.ShellManager.GetStatus(cmd.Uuid, false)
+		status := shell.MapCommandStatus(stat)
+		if cmd.Status != status {
+			cmd.Status = status
+			m.Commands[item] = cmd
+		}
+
 		commands = append(commands, cmd)
 	}
 	return commands
+}
+
+func (m *Manager) GetCommand(uuid string) (Command, bool) {
+	command, exists := m.Commands[uuid]
+	return command, exists
 }
 
 func (m *Manager) AddCommand(cmd Command) bool {
@@ -46,6 +61,57 @@ func (m *Manager) RemoveCommand(uuid string) bool {
 	return true
 }
 
+func (m *Manager) GetStat(uuid string) (Stat, error) {
+	config, exists := m.Configs[uuid]
+	if !exists {
+		return Stat{
+			Status: "unknown",
+		}, errors.New("not configured")
+	}
+
+	shellCommand := m.ShellManager.Get(uuid)
+	if shellCommand == nil {
+		cmd := shell.Command{
+			Uuid:     uuid,
+			Command:  config.Command,
+			Dir:      config.Dir,
+			Attached: true,
+			Async:    true,
+			AliveConfig: shell.AliveCheckConfig{
+				Ping: config.Ping,
+			},
+		}
+		m.ShellManager.Attach(cmd)
+		shellCommand = &cmd
+	}
+
+	// Get command alive status
+	cmdStatus := m.ShellManager.GetStatus(uuid, true)
+	status := shell.MapCommandStatus(cmdStatus)
+	output := shellCommand.GetOutput()
+	return Stat{
+		Status: status,
+		Output: output,
+	}, nil
+}
+
+func (m *Manager) BatchStat() map[string]int {
+	result := make(map[string]int)
+	stat := shell.ShellStat{}
+	stat.Check("trigger ps checking")
+
+	for _, uuid := range m.Instances {
+		config, exists := m.Configs[uuid]
+		if exists && len(strings.TrimSpace(config.Ping)) > 0 {
+			result[uuid] = stat.OutputContainCount(config.Ping)
+		} else {
+			result[uuid] = 0
+		}
+	}
+
+	return result
+}
+
 func (m *Manager) StartCommand(uuid string) bool {
 	config, exists := m.Configs[uuid]
 	if exists {
@@ -56,8 +122,20 @@ func (m *Manager) StartCommand(uuid string) bool {
 	return false
 }
 
-func (m *Manager) StopCommand(uuid string) {
-	// m.ShellManager
+func (m *Manager) StopCommand(uuid string) bool {
+	cmd := m.ShellManager.Get(uuid)
+	if cmd == nil || cmd.Exec == nil {
+		config, exists := m.Configs[uuid]
+		if exists {
+			return m.ShellManager.Kill(config.Ping)
+		}
+	} else {
+		if cmd.Exec.Process != nil {
+			cmd.Exec.Process.Kill()
+		}
+	}
+
+	return false
 }
 
 func (m *Manager) GetConfig(uuid string) Config {

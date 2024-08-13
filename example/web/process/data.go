@@ -12,6 +12,7 @@ type Config struct {
 	Uuid    string `json:"uuid"`
 	Dir     string `json:"dir"`
 	Command string `json:"command"`
+	Ping    string `json:"ping"`
 }
 
 type Manager struct {
@@ -19,4 +20,9 @@ type Manager struct {
 	Commands     map[string]Command  `json:"commands"`
 	Configs      map[string]Config   `json:"configs"`
 	ShellManager *shell.ShellManager `json:"-"`
+}
+
+type Stat struct {
+	Status string   `json:"status"`
+	Output []string `json:"output"`
 }

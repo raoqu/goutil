@@ -1,17 +1,17 @@
 package api
 
-type StatRequest struct {
+type EchoRequest struct {
 	Name  string `json:"name"`
 	Check bool   `json:"check"`
 }
 
-type StatResponse struct {
+type EchoResponse struct {
 	Name  string `json:"name"`
 	Check bool   `json:"check"`
 }
 
-func APIStat(req StatRequest) (StatResponse, error) {
-	return StatResponse{
+func APIEcho(req EchoRequest) (EchoResponse, error) {
+	return EchoResponse{
 		Name:  req.Name,
 		Check: req.Check,
 	}, nil

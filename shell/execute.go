@@ -11,7 +11,7 @@ func (c *Command) Run() error {
 	if c.Manager != nil {
 		manager := c.Manager
 		manager.Mutex.Lock()
-		manager.Processes[c.UniqueId] = c
+		manager.Processes[c.Uuid] = c
 		manager.Mutex.Unlock()
 	}
 
@@ -26,11 +26,14 @@ func (c *Command) Run() error {
 }
 
 func (c *Command) execute() {
+	c.Status = START
 	err := c.Exec.Start() // start shell command
 	if err != nil {
 		c.Err = err
+		c.Status = FAIL
 	} else {
 		c.Wait()
+		c.Status = COMPLETE
 	}
 }
 
@@ -71,6 +74,7 @@ func (c *Command) initExec() {
 	// }
 
 	c.Exec = cmd
+	c.Attached = false
 
 	if c.OnOutput != nil {
 		c.initOutputWriter()
