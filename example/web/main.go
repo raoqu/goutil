@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	server := web.NewServer(7777, true, "assets")
+	server := web.NewServer(7777, false, "assets")
 
 	println("Listening on", server.Address())
 

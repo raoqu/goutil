@@ -1,3 +1,6 @@
 example/shell/shell
 example/web/web
+example/web/webx64
+example/web/buildx64.sh
+
 shell/test/test

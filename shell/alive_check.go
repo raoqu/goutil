@@ -16,7 +16,7 @@ func (c *Command) UpdateStatus() CommandStatus {
 
 func psPing(c *Command) bool {
 	stat := ShellStat{}
-	contains := stat.CheckOutput("ps", c.AliveConfig.Ping)
+	contains := stat.CheckOutput("ps -ef", c.AliveConfig.Ping)
 	c.extBuffer = stat.psoutput
 	if contains {
 		c.Status = START

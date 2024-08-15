@@ -7,7 +7,7 @@ type ShellStat struct {
 }
 
 func (s *ShellStat) Check(output string) bool {
-	return s.CheckOutput("ps", output)
+	return s.CheckOutput("ps -ef", output)
 }
 
 func (s *ShellStat) CheckOutput(command string, output string) bool {
@@ -25,7 +25,7 @@ func (s *ShellStat) win_Check(command string, output string) bool {
 
 func (s *ShellStat) unix_Check(command string, output string) bool {
 	if len(s.psoutput) == 0 {
-		command := NewCommand("ps", false)
+		command := NewCommand("ps -ef", false)
 		command.BufferLines = 200
 		command.OnOutput = func(string) {}
 		command.Run()
