@@ -33,12 +33,14 @@ func (g *ShellManager) ParseProcessIDs(ping string) []int {
 	if stat.Check(ping) {
 		outputs := stat.psoutput
 		if len(outputs) > 0 {
-			re := regexp.MustCompile(`^(\d+)\s+.*`)
+			re := regexp.MustCompile(`^\s*[^\s]+\s+(\d+)\s+.*`)
 			for _, line := range outputs {
 				if strings.Contains(line, ping) {
+					println("line", line)
 					matches := re.FindStringSubmatch(line)
 					if len(matches) > 1 {
 						numStr := matches[1]
+						println("pid", numStr)
 						processId, err := strconv.Atoi(numStr)
 						if err == nil {
 							processIds = append(processIds, processId)

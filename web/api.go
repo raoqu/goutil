@@ -2,6 +2,8 @@ package web
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
 )
 
 type WebAPI[T any, R any] func(T) (R, error)
@@ -25,7 +27,7 @@ func NewResponse[T interface{}](sucess bool, message string, data T) Response {
 
 const INVALID_RESPONSE = `{"success":false}`
 
-func NewAPI[T any, R any](callback WebAPI[T, R]) func(string) (string, error) {
+func NewAPI[T any, R any](callback WebAPI[T, R]) StdAPI {
 	return func(input string) (string, error) {
 		var value T
 		err := json.Unmarshal([]byte(input), &value)
@@ -52,4 +54,27 @@ func NewAPI[T any, R any](callback WebAPI[T, R]) func(string) (string, error) {
 func RegisterAPI[T any, R any](s *Server, endpoint string, callback WebAPI[T, R]) {
 	api := NewAPI(callback)
 	s.API(endpoint, api)
+}
+
+func apiHandler(api StdAPI, w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		defer r.Body.Close()
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Unable to read request body", http.StatusBadRequest)
+			return
+		}
+
+		req := string(body)
+		resp, err := api(req)
+		if err != nil {
+			http.Error(w, "Failed process endpoint", http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(resp))
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }

@@ -6,3 +6,4 @@ example/web/webx64
 example/web/buildx64.sh
 
 shell/test/test
+run.sh

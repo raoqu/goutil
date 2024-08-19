@@ -2,24 +2,25 @@ package web
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"path/filepath"
 )
 
 type Server struct {
-	Local    bool
-	Port     int
-	Dir      string
-	Endpoint map[string]StdAPI
+	Local             bool
+	Port              int
+	Dir               string
+	Endpoint          map[string]StdAPI
+	WSSEndpointCreate map[string]WSSInstance
 }
 
 func NewServer(port int, local bool, dir string) *Server {
 	server := Server{
-		Local:    local,
-		Port:     port,
-		Dir:      dir,
-		Endpoint: make(map[string]StdAPI),
+		Local:             local,
+		Port:              port,
+		Dir:               dir,
+		Endpoint:          make(map[string]StdAPI),
+		WSSEndpointCreate: make(map[string]WSSInstance),
 	}
 	return &server
 }
@@ -32,7 +33,7 @@ func (s *Server) Start() {
 	mux := http.NewServeMux()
 	// s.Mux = mux
 	mux.HandleFunc("/api/", func(response http.ResponseWriter, request *http.Request) {
-		apiHandler(s, response, request)
+		dynamicHandler(s, response, request)
 	})
 	mux.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 		staticHandler(s, response, request)
@@ -49,39 +50,20 @@ func (s *Server) Address() string {
 	return fmt.Sprintf("%s:%d", address, s.Port)
 }
 
-func apiHandler(s *Server, w http.ResponseWriter, r *http.Request) {
+func dynamicHandler(s *Server, w http.ResponseWriter, r *http.Request) {
 	endpoint := r.URL.Path[len("/api/"):]
-
 	if endpoint == "" {
 		http.Error(w, "Endpoint is required", http.StatusBadRequest)
 		return
 	}
 
-	api, exists := s.Endpoint[endpoint]
-	if !exists {
-		http.Error(w, "Endpoint unknown", http.StatusBadRequest)
-		return
-	}
-
-	if r.Method == http.MethodPost {
-		defer r.Body.Close()
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Unable to read request body", http.StatusBadRequest)
-			return
-		}
-
-		req := string(body)
-		resp, err := api(req)
-		if err != nil {
-			http.Error(w, "Failed process endpoint", http.StatusBadRequest)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(resp))
+	if api, exists := s.Endpoint[endpoint]; exists {
+		apiHandler(api, w, r)
+	} else if wss, exists := s.WSSEndpointCreate[endpoint]; exists {
+		wssHandler(wss, w, r)
 	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Invalid endpoint", http.StatusBadRequest)
+		return
 	}
 }
 

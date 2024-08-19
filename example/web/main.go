@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/raoqu/goutil/example/web/api"
+	"github.com/raoqu/goutil/example/web/process"
 	"github.com/raoqu/goutil/web"
 )
 
@@ -23,6 +24,9 @@ func main() {
 	web.RegisterAPI(server, "configs", api.APIConfig)
 	web.RegisterAPI(server, "config_update", api.APIConfigUpdate)
 
+	web.RegisterWebSocket(server, "wssoutput", api.WSS_INSTANCE_OUTPUT)
+
+	process.MANAGER.StartWSSHub()
 	server.Start()
 
 	select {}
