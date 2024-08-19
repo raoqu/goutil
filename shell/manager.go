@@ -22,7 +22,7 @@ func NewShellManager() ShellManager {
 	}
 }
 
-func (g *ShellManager) Start(command Command) {
+func (g *ShellManager) Start(command *Command) {
 	command.Manager = g
 	command.Run()
 }

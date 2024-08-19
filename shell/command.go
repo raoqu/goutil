@@ -29,6 +29,7 @@ type Command struct {
 	Attached bool
 	// callbacks
 	OnOutput    func(string)
+	OnStart     func()
 	OnClose     func()
 	BufferLines int
 	Status      CommandStatus

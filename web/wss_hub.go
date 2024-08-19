@@ -6,22 +6,33 @@ import (
 
 type WSSHub struct {
 	clients    map[*WSSClient]bool
-	broadcast  chan string
+	broadcast  chan BroadcastMessage
 	register   chan *WSSClient
 	unregister chan *WSSClient
 }
 
+type BroadcastMessage struct {
+	Group   string
+	Message string
+}
+
 func NewWSSHub() *WSSHub {
 	return &WSSHub{
-		broadcast:  make(chan string),
+		broadcast:  make(chan BroadcastMessage),
 		register:   make(chan *WSSClient),
 		unregister: make(chan *WSSClient),
 		clients:    make(map[*WSSClient]bool),
 	}
 }
 
-func (h *WSSHub) Broadcast(message string) bool {
-	h.broadcast <- message
+func (h *WSSHub) Broadcast(message string, groupId string) bool {
+	if len(groupId) < 1 {
+		groupId = "*"
+	}
+	h.broadcast <- BroadcastMessage{
+		Group:   groupId,
+		Message: message,
+	}
 	return true
 }
 
@@ -30,6 +41,7 @@ func (h *WSSHub) Add(client *WSSClient) {
 }
 
 func (h *WSSHub) Remove(client *WSSClient) {
+	client.Print("remove")
 	if h.clients[client] {
 		h.unregister <- client
 	}
@@ -48,24 +60,13 @@ func (h *WSSHub) Run() {
 				delete(h.clients, client)
 				close(client.send)
 			}
-		case message := <-h.broadcast:
+		case broadMessage := <-h.broadcast:
 			print(client2string(h.clients))
-
 			for client := range h.clients {
-				doit := true
-				var newMessage string
-				if instance := client.Instance; instance != nil {
-					newMessage, doit = instance.BeforeBroadcast(client, string(message))
-				} else {
-					newMessage = message
-				}
-				if doit {
+				if broadMessage.Group == "*" || broadMessage.Group == client.Group {
 					select {
-					case client.send <- newMessage:
-					default:
-						client.Print("close")
-						close(client.send)
-						delete(h.clients, client)
+					case client.send <- broadMessage.Message:
+
 					}
 				}
 			}

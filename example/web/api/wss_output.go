@@ -18,16 +18,14 @@ func (*WSSOutput) OnCreate(client *web.WSSClient) {
 	}
 }
 
-func (*WSSOutput) OnMessage(client *web.WSSClient, message string) {
-	if message != "<<<keePAlive>>>" {
-		client.Set("uuid", message)
-		client.Print("UUID: " + client.Get("uuid"))
+func (*WSSOutput) OnMessage(client *web.WSSClient, msg string) {
+	msgType, message := types.Split2(msg, ":")
+	switch msgType {
+	case process.MSG_MESSAGE:
+		client.Print(message)
+	case process.MSG_GROUP:
+		client.Group = message
+	default:
+		// client.Print(".")
 	}
-}
-
-func (*WSSOutput) BeforeBroadcast(client *web.WSSClient, str string) (string, bool) {
-	target, message := types.Split2(str, ":")
-	uuid := client.Get("uuid")
-
-	return message, target == uuid
 }

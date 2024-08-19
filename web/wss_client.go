@@ -19,6 +19,7 @@ type WSSClient struct {
 	WSSHub *WSSHub
 	conn   *websocket.Conn
 	send   chan string
+	Group  string
 
 	Data     map[string]string
 	Instance WSSInstance
@@ -32,14 +33,14 @@ type WSSMessageCallback func(*WSSClient, string)
 type WSSInstance interface {
 	OnCreate(client *WSSClient)
 	OnMessage(client *WSSClient, message string) // message processor
-	BeforeBroadcast(client *WSSClient, message string) (string, bool)
 }
 
 func NewWSSClient(conn *websocket.Conn) *WSSClient {
 	client := WSSClient{
-		conn: conn,
-		send: make(chan string),
-		Data: make(map[string]string),
+		conn:  conn,
+		send:  make(chan string),
+		Group: "",
+		Data:  make(map[string]string),
 	}
 	client.Set("index", strconv.Itoa(uniqueIndex))
 	uniqueIndex = uniqueIndex + 1
@@ -93,9 +94,8 @@ func (c *WSSClient) readPump() {
 
 		c.conn.SetReadDeadline(time.Now().Add(WSS_KEEP_ALIVE))
 		messageStr := string(message)
-		if messageStr != "<<<keePAlive>>>" {
-			c.Instance.OnMessage(c, messageStr)
-		}
+		// msgType, messageStr := types.Split2(string(message), ":")
+		c.Instance.OnMessage(c, messageStr)
 	}
 }
 

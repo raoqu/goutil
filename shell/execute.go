@@ -27,6 +27,9 @@ func (c *Command) Run() error {
 
 func (c *Command) execute() {
 	c.Status = START
+	if c.OnStart != nil {
+		c.OnStart()
+	}
 	err := c.Exec.Start() // start shell command
 	if err != nil {
 		c.Err = err
@@ -34,6 +37,7 @@ func (c *Command) execute() {
 	} else {
 		c.Wait()
 		c.Status = COMPLETE
+		c.handleClose()
 	}
 }
 
@@ -56,7 +60,6 @@ func (c *Command) Wait() {
 			c.outputWriter.Flush()
 		}
 	}
-	c.handleClose()
 }
 
 func (c *Command) initExec() {

@@ -3,7 +3,6 @@ package process
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -174,10 +173,20 @@ func (m *Manager) StartCommand(uuid string) bool {
 		command := shell.NewCommandWithWorkDir(config.Command, true, config.Dir)
 		command.OnOutput = func(message string) {
 			if m.WSSHub != nil {
-				m.WSSHub.Broadcast(fmt.Sprintf("%s:%s", uuid, message))
+				m.WSSHub.Broadcast(ComposeMessage(MSG_LOG, message), uuid)
 			}
 		}
-		m.ShellManager.Start(command)
+		command.OnStart = func() {
+			if m.WSSHub != nil {
+				m.WSSHub.Broadcast(ComposeMessage(MSG_STATUS_UPDATE, uuid+"|"+shell.MapCommandStatus(command.Status)), "")
+			}
+		}
+		command.OnClose = func() {
+			if m.WSSHub != nil {
+				m.WSSHub.Broadcast(ComposeMessage(MSG_STATUS_UPDATE, uuid+"|"+shell.MapCommandStatus(command.Status)), "")
+			}
+		}
+		m.ShellManager.Start(&command)
 		return true
 	}
 	return false
