@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -54,14 +55,16 @@ func (h *WSSHub) Run() {
 			client.Print("register")
 			h.clients[client] = true
 			client.WSSHub = h
+			fmt.Printf("%d clients alive\n", len(h.clients))
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				client.Print("delete")
 				delete(h.clients, client)
 				close(client.send)
 			}
+			fmt.Printf("%d clients alive\n", len(h.clients))
 		case broadMessage := <-h.broadcast:
-			print(client2string(h.clients))
+			// print(client2string(h.clients))
 			for client := range h.clients {
 				if broadMessage.Group == "*" || broadMessage.Group == client.Group {
 					select {
