@@ -34,6 +34,7 @@ func (c *Command) execute() {
 	if err != nil {
 		c.Err = err
 		c.Status = FAIL
+		println(err.Error())
 	} else {
 		c.Wait()
 		c.Status = COMPLETE
